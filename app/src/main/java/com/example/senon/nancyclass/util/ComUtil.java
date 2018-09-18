@@ -21,4 +21,21 @@ public class ComUtil {
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(metric);
         return metric.heightPixels;
     }
+
+    public static String getLevelStr(int level){
+        switch (level){
+            case 1:
+                return "非常好";
+            case 2:
+                return "很好";
+            case 3:
+                return "良好";
+            case 4:
+                return "一般";
+            case 5:
+                return "较差";
+            default:
+                return "很好";
+        }
+    }
 }

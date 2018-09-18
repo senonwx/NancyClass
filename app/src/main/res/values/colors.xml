@@ -128,4 +128,9 @@
     //自定义点赞时
     <color name="color_river_line">#f98801</color>
     <color name="color_river_panel">#4df98801</color>
+
+    <color name="smile_bg">#bfbfbf</color>
+    <color name="smile_yellow">#ea9161</color>
+
+
 </resources>

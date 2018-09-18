@@ -142,6 +142,12 @@ public class RecycleHolder extends RecyclerView.ViewHolder {
         return this;
     }
 
+    public RecycleHolder setBackgroundResource(int viewId, int ImageId) {
+        ImageView image = findView(viewId);
+        image.setBackgroundResource(ImageId);
+        return this;
+    }
+
     public RecycleHolder setLayoutParams(int viewId, ViewGroup.LayoutParams para) {
         View view = findView(viewId);
         view.setLayoutParams(para);

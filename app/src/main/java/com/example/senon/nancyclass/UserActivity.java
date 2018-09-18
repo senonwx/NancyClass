@@ -17,6 +17,7 @@ import com.example.senon.nancyclass.greendaoutil.UserDetailsDt;
 import com.example.senon.nancyclass.greendaoutil.UserReviewDt;
 import com.example.senon.nancyclass.presenter.MainPresenter;
 import com.example.senon.nancyclass.presenter.UserPresenter;
+import com.example.senon.nancyclass.util.ComUtil;
 import com.example.senon.nancyclass.util.ToastUtil;
 import com.github.jdsjlzx.interfaces.OnLoadMoreListener;
 import com.github.jdsjlzx.interfaces.OnRefreshListener;
@@ -46,6 +47,7 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
     @BindView(R.id.last_tv)
     TextView last_tv;
 
+    private static final int REQUEST_CODE = 1000;
     private RecyclerAdapter<UserDetails> adapter;
     private LRecyclerViewAdapter mLRecyclerViewAdapter;
     private boolean isLoadMore = false;//是否加载更多
@@ -58,6 +60,7 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
     private String name;//学员姓名
     private UserReview userReview;//该学员概述信息
     private DialogRecharge dialogRecharge;
+
 
     @Override
     public int getLayoutId() {
@@ -90,10 +93,12 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
                 helper.setText(R.id.time_tv,item.getTime());
                 if(item.getFlag() == 1){
                     helper.setText(R.id.type_tv,"签到");
-                    helper.setText(R.id.des_tv,"");
+                    helper.setText(R.id.des_tv, ComUtil.getLevelStr(item.getLevel()));
                 }else if(item.getFlag() == 2){
                     helper.setText(R.id.type_tv,"充值"+item.getMoney());
-                    helper.setText(R.id.des_tv,item.getCount());
+                    helper.setText(R.id.des_tv,"充值"+item.getCount()+"次");
+                    helper.setTextColor(R.id.type_tv,R.color.txt_green_color);
+                    helper.setTextColor(R.id.des_tv,R.color.txt_green_color);
                 }
 
                 helper.setOnClickListener(R.id.lay, new View.OnClickListener() {
@@ -101,7 +106,19 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
                     public void onClick(View v) {
                         startActivity(new Intent(UserActivity.this,SignActivity.class)
                                 .putExtra("name",name)
-                                .putExtra("isChange",true));
+                                .putExtra("state",0)
+                                .putExtra("time",item.getTime()));
+                    }
+                });
+                helper.setOnLongClickListener(R.id.lay, new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        startActivityForResult(new Intent(UserActivity.this,SignActivity.class)
+                                .putExtra("name",name)
+                                .putExtra("state",2)
+                                .putExtra("time",item.getTime()),
+                                REQUEST_CODE);
+                        return false;
                     }
                 });
             }
@@ -137,19 +154,6 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
                 finish();
                 break;
             case R.id.recharge_btn:
-//                UserDetails rechargeUser = new UserDetails();
-//                rechargeUser.setName(name);
-//                rechargeUser.setTime("2018-9-17");
-//                rechargeUser.setFlag(2);
-//                rechargeUser.setMoney(1200);
-//                rechargeUser.setCount(6);
-//                rechargeUser.setContent("张三小朋友的妈妈交了1200元，共计6次费用");
-//                userDetailsDt.insertByTime(rechargeUser);
-//
-//                mData.clear();
-//                mData.addAll(userDetailsDt.getAllByName(name));
-//                mLRecyclerViewAdapter.notifyDataSetChanged();
-
                 if(dialogRecharge == null){
                     dialogRecharge = new DialogRecharge(UserActivity.this,name);
                     dialogRecharge.setConfirmClickListener(new DialogRecharge.OnClickListener() {
@@ -159,6 +163,7 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
                             if(details == null){
                                 details = new UserDetails();
                                 details.setName(name);
+                                details.setFlag(2);
                                 details.setTime(time);
                                 details.setMoney(Integer.parseInt(money));
                                 details.setCount(Integer.parseInt(count));
@@ -180,22 +185,10 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
                 dialogRecharge.show();
                 break;
             case R.id.sign_btn:
-//                UserDetails signUser = new UserDetails();
-//                signUser.setName(name);
-//                signUser.setTime("2018-9-18");
-//                signUser.setFlag(1);
-//                signUser.setCount(1);
-//                signUser.setLevel(1);
-//                signUser.setContent("英语单词复习、听力练习、课题评讲");
-//                signUser.setComments("积极发言，表现良好，值得鼓励，是其他孩子的榜样，继续加油！！！");
-//                userDetailsDt.insertByTime(signUser);
-//
-//                mData.clear();
-//                mData.addAll(userDetailsDt.getAllByName(name));
-//                mLRecyclerViewAdapter.notifyDataSetChanged();
-
-                startActivity(new Intent(UserActivity.this,SignActivity.class)
-                        .putExtra("name",name));
+                startActivityForResult(new Intent(UserActivity.this,SignActivity.class)
+                                .putExtra("name",name)
+                                .putExtra("state",1),
+                                REQUEST_CODE);
                 break;
         }
     }
@@ -219,5 +212,13 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
         ToastUtil.showShortToast(msg);
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CODE && resultCode == RESULT_OK){
+            mData.clear();
+            mData.addAll(userDetailsDt.getAllByName(name));
+            mLRecyclerViewAdapter.notifyDataSetChanged();
+        }
+    }
 }

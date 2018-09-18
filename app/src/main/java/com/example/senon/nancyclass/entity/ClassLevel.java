@@ -13,7 +13,7 @@ public class ClassLevel {
     private int imageNoCheck;//未选中的图片资源id
     private boolean isCheck;//是否被选中
     private String des;//文字描述
-    private int level;//等级  1优秀  2比较好 3良好  4一般  5较差
+    private int level;//等级  1非常好  2很好  3良好  4一般  5较差
 
     public ClassLevel() {
     }
@@ -28,11 +28,11 @@ public class ClassLevel {
 
     public ArrayList getTypeTop(){
         ArrayList<ClassLevel> list = new ArrayList<>();
-        list.add(new ClassLevel(false,"优秀",1,R.drawable.smile11, R.drawable.smile1));
-        list.add(new ClassLevel(false,"优秀",1,R.drawable.smile11, R.drawable.smile1));
-        list.add(new ClassLevel(false,"优秀",1,R.drawable.smile11, R.drawable.smile1));
-        list.add(new ClassLevel(false,"优秀",1,R.drawable.smile11, R.drawable.smile1));
-        list.add(new ClassLevel(false,"优秀",1,R.drawable.smile11, R.drawable.smile1));
+        list.add(new ClassLevel(false,"非常好",1,R.drawable.smile11, R.drawable.smile1));
+        list.add(new ClassLevel(false,"很好",2,R.drawable.smile22, R.drawable.smile2));
+        list.add(new ClassLevel(false,"良好",3,R.drawable.smile33, R.drawable.smile3));
+        list.add(new ClassLevel(false,"一般",4,R.drawable.smile44, R.drawable.smile4));
+        list.add(new ClassLevel(false,"较差",5,R.drawable.smile55, R.drawable.smile5));
 
         return list;
     }

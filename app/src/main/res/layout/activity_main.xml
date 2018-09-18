@@ -43,7 +43,6 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:layout_marginTop="10dp"
         android:layout_below="@+id/lay1"
         android:id="@+id/all_layout"
         android:layout_width="match_parent"

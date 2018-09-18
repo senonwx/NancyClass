@@ -1,5 +1,6 @@
 package com.example.senon.nancyclass;
 
+import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 
@@ -69,6 +70,14 @@ public class MainActivity extends BaseActivity<MainContract.View, MainContract.P
                 helper.setText(R.id.name_tv,item.getName());
                 helper.setText(R.id.count_tv,item.getTotal());
                 helper.setText(R.id.time_tv,item.getSignTime());
+
+                helper.setOnClickListener(R.id.lay, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(MainActivity.this,UserActivity.class)
+                                .putExtra("name",item.getName()));
+                    }
+                });
             }
         };
         mLRecyclerViewAdapter = new LRecyclerViewAdapter(adapter);
@@ -104,7 +113,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainContract.P
                 user.setTotal(12);
                 userBeanDt.insert(user);
 
-                mData = userBeanDt.getAll();
+                mData.clear();
+                mData.addAll(userBeanDt.getAll());
                 mLRecyclerViewAdapter.notifyDataSetChanged();
                 break;
             case R.id.detele_igv:

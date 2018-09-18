@@ -16,6 +16,12 @@ public class UserDetailsDt {
         return list_record.size() > 0 ? list_record.get(0) : null;
     }
 
+    public UserDetails findByTime(String time) {
+        List<UserDetails> list_record = SqlEnu.Local.cn().getUserDetailsDao().queryBuilder()
+                .where(UserDetailsDao.Properties.Time.eq(time)).list();
+        return list_record.size() > 0 ? list_record.get(0) : null;
+    }
+
     private UserDetails findById(Long id) {
         List<UserDetails> list_record = SqlEnu.Local.cn().getUserDetailsDao().queryBuilder()
                 .where(UserDetailsDao.Properties.Id.eq(id)).list();
@@ -47,6 +53,18 @@ public class UserDetailsDt {
 
     public void insert(UserDetails bean) {
         if (!equals(bean)) {
+            SqlEnu.Local.cn().getUserDetailsDao().insert(bean);
+        }
+    }
+
+    public void insertByName(UserDetails bean) {
+        if (findByName(bean.getName()) == null) {
+            SqlEnu.Local.cn().getUserDetailsDao().insert(bean);
+        }
+    }
+
+    public void insertByTime(UserDetails bean) {
+        if (findByTime(bean.getTime()) == null) {
             SqlEnu.Local.cn().getUserDetailsDao().insert(bean);
         }
     }

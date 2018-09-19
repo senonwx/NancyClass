@@ -2,7 +2,11 @@ package com.example.senon.nancyclass;
 
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.TextView;
 import com.example.senon.nancyclass.adapter.RecycleHolder;
 import com.example.senon.nancyclass.adapter.RecyclerAdapter;
@@ -71,6 +75,7 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
     @Override
     public void init() {
         EventBus.getDefault().register(this);
+
         name = getIntent().getStringExtra("name");
         name_tv.setText(name+"的历史记录");
 
@@ -114,28 +119,48 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
                     helper.setTextColor(R.id.type_tv,R.color.txt_green_color);
                 }
 
-                if(item.getFlag() == 1){
-                    helper.setOnClickListener(R.id.lay, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
+                helper.setOnClickListener(R.id.lay, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(item.getFlag() == 1) {
                             startActivity(new Intent(UserActivity.this,SignActivity.class)
                                     .putExtra("name",name)
                                     .putExtra("state",0)
                                     .putExtra("time",item.getTime()));
                         }
-                    });
-                    helper.setOnLongClickListener(R.id.lay, new View.OnLongClickListener() {
-                        @Override
-                        public boolean onLongClick(View view) {
-                            startActivity(new Intent(UserActivity.this,SignActivity.class)
+
+                    }
+                });
+
+                helper.setOnLongClickListener(R.id.lay, new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        ArrayList<String> list = new ArrayList<>();
+                        if(item.getFlag() == 1){
+                            list.add("删除该次签到");
+                            list.add("更改该次签到");
+                        }else if(item.getFlag() == 2){
+                            list.add("删除该次充值");
+                        }
+                        new DialogPopwin(UserActivity.this, list, new DialogPopwin.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(int position) {
+                                if(position == 0){
+                                    ////todo 删除数据库历史纪录  并且还原学员概述的值
+
+                                    ToastUtil.showShortToast("确认删除?");
+                                }else if(position == 1){
+
+                                    startActivity(new Intent(UserActivity.this,SignActivity.class)
                                             .putExtra("name",name)
                                             .putExtra("state",2)
                                             .putExtra("time",item.getTime()));
-                            return false;
-                        }
-                    });
-                }
-
+                                }
+                            }
+                        }).show();
+                        return false;
+                    }
+                });
             }
         };
         mLRecyclerViewAdapter = new LRecyclerViewAdapter(adapter);
@@ -218,6 +243,7 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
                 break;
         }
     }
+
 
     @Override
     public UserContract.Presenter createPresenter() {

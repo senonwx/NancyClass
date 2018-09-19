@@ -2,7 +2,11 @@ package com.example.senon.nancyclass;
 
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 
 import com.example.senon.nancyclass.adapter.RecycleHolder;
 import com.example.senon.nancyclass.adapter.RecyclerAdapter;
@@ -154,10 +158,14 @@ public class MainActivity extends BaseActivity<MainContract.View, MainContract.P
                             ToastUtil.showShortToast("该学员不存在");
                             return;
                         }
-                        userBeanDt.delete(name);
-                        initData();
-                        mLRecyclerViewAdapter.notifyDataSetChanged();
-                        dialogAdd$Del.dismiss();
+
+                        ////todo 删除数据库历史纪录  并且还原学员概述的值
+
+                        ToastUtil.showShortToast("确认删除?");
+//                        userBeanDt.delete(name);
+//                        initData();
+//                        mLRecyclerViewAdapter.notifyDataSetChanged();
+//                        dialogAdd$Del.dismiss();
                     }
                 });
                 dialogAdd$Del.show();

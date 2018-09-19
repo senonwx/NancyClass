@@ -32,12 +32,13 @@
             android:textSize="13sp" />
 
         <TextView
-            android:layout_below="@+id/text1"
-            android:gravity="start"
             android:id="@+id/time_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="2018-09-19"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/text1"
+            android:gravity="start"
+            android:text="2018-01-01"
             android:textColor="@color/elegant_publish_title"
             android:textSize="16sp" />
 
@@ -55,13 +56,13 @@
             android:id="@+id/money_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="1200"
+            android:text="0"
             android:textColor="@color/elegant_publish_title"
             android:textSize="16sp" />
 
         <TextView
+            android:layout_marginTop="18dp"
             android:id="@+id/type_tv"
-            android:layout_centerVertical="true"
             android:layout_marginRight="20dp"
             android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
@@ -71,12 +72,13 @@
             android:textSize="18sp" />
 
         <TextView
+            android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"
             android:layout_below="@+id/time_tv"
             android:id="@+id/des_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="备注:今天天气很好哦"
+            android:text="备注:*"
             android:textColor="@color/elegant_publish_title"
             android:textSize="14sp" />
 

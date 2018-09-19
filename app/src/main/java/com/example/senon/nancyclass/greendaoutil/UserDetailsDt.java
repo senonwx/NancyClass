@@ -22,6 +22,14 @@ public class UserDetailsDt {
         return list_record.size() > 0 ? list_record.get(0) : null;
     }
 
+    public UserDetails findByName$Time(String name,String time) {
+        List<UserDetails> list_record = SqlEnu.Local.cn().getUserDetailsDao().queryBuilder()
+                .where(UserDetailsDao.Properties.Name.eq(name))
+                .where(UserDetailsDao.Properties.Time.eq(time))
+                .list();
+        return list_record.size() > 0 ? list_record.get(0) : null;
+    }
+
     private UserDetails findById(Long id) {
         List<UserDetails> list_record = SqlEnu.Local.cn().getUserDetailsDao().queryBuilder()
                 .where(UserDetailsDao.Properties.Id.eq(id)).list();

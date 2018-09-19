@@ -26,12 +26,12 @@ public class UserReviewDt {
         }
     }
 
-    public void update(String name, int total, int lost, String time, UserReview bean) {
+    public void update(String name, int total_count, int last_count, String time, UserReview bean) {
         UserReview UserReview = findByName(name);
         if(UserReview != null){
             bean.setSignTime(time);
-            bean.setTotal(total);
-            bean.setLast(lost);
+            bean.setTotal_count(total_count);
+            bean.setLast_count(last_count);
         }
         SqlEnu.Local.cn().getUserReviewDao().update(bean);
     }

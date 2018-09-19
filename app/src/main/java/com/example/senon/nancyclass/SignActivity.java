@@ -16,12 +16,18 @@ import com.example.senon.nancyclass.base.BasePresenter;
 import com.example.senon.nancyclass.base.BaseView;
 import com.example.senon.nancyclass.entity.ClassLevel;
 import com.example.senon.nancyclass.greendaoentity.UserDetails;
+import com.example.senon.nancyclass.greendaoentity.UserReview;
 import com.example.senon.nancyclass.greendaoutil.UserDetailsDt;
 import com.example.senon.nancyclass.greendaoutil.UserReviewDt;
+import com.example.senon.nancyclass.util.AppConfig;
+import com.example.senon.nancyclass.util.BaseEvent;
 import com.example.senon.nancyclass.util.SelectorTimeUtil;
 import com.example.senon.nancyclass.util.ToastUtil;
 import com.github.jdsjlzx.recyclerview.LRecyclerView;
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
+
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -95,7 +101,7 @@ public class SignActivity extends BaseActivity<BaseView, BasePresenter<BaseView>
     }
 
     private void initData(){
-        userDetails = userDetailsDt.findByTime(time);
+        userDetails = userDetailsDt.findByName$Time(name,time);
         time_tv.setText(userDetails.getTime());
         content_edt.setText(userDetails.getContent());
         comments_edt.setText(userDetails.getComments());
@@ -195,13 +201,24 @@ public class SignActivity extends BaseActivity<BaseView, BasePresenter<BaseView>
                     details.setLevel(level);
                     details.setContent(content);
                     details.setComments(comments);
-                    if(userDetailsDt.findByTime(time) != null && userDetailsDt.findByTime(time).getFlag() == 1){
+                    if(userDetailsDt.findByName$Time(name,time) != null && userDetailsDt.findByName$Time(name,time).getFlag() == 1){
                         ToastUtil.showShortToast("当天已经签过到啦");
                     }else{
-                        ////todo userReviewDt 要减少次数
+                        //减少学员概述中的剩余次数
+                        UserReview userReview = userReviewDt.findByName(name);
+                        userReview.setSignTime(time);
+                        userReview.setLast_count(userReview.getLast_count()-1);
+                        userReview.setLast_money(userReview.getLast_money() - AppConfig.PRICE);
+                        userReviewDt.update(userReview);
+
+                        //学员签到历史记录增加
                         userDetailsDt.insert(details);
-                        ToastUtil.showShortToast("签到提交成功");
-                        setResult(RESULT_OK);
+                        ToastUtil.showShortToast("签到成功");
+
+                        BaseEvent event = new BaseEvent();
+                        event.setCode(1);
+                        EventBus.getDefault().post(event);
+
                         finish();
                     }
                 }else if(state == 2){//修改
@@ -212,7 +229,11 @@ public class SignActivity extends BaseActivity<BaseView, BasePresenter<BaseView>
 
                     userDetailsDt.update(userDetails);
                     ToastUtil.showShortToast("签到修改成功");
-                    setResult(RESULT_OK);
+
+                    BaseEvent event = new BaseEvent();
+                    event.setCode(2);
+                    EventBus.getDefault().post(event);
+
                     finish();
                 }
 

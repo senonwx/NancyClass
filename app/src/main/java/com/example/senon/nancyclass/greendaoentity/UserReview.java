@@ -24,8 +24,10 @@ public class UserReview {
     private Long id;//主键
     @NotNull
     private String name;//姓名
-    private int total;//总数
-    private int last;//剩余数
+    private int total_count;//总数
+    private int last_count;//剩余数
+    private int total_money;//总金额
+    private int last_money;//剩余金额
     private String signTime;//最近签到时间
     @ToMany(joinProperties = {@JoinProperty(name = "id", referencedName = "id")})
     private List<UserDetails> userDetailsList;//一个学员可以对应多个补课数据
@@ -37,13 +39,15 @@ public class UserReview {
     /** Used for active entity operations. */
     @Generated(hash = 1038734393)
     private transient UserReviewDao myDao;
-    @Generated(hash = 311400517)
-    public UserReview(Long id, @NotNull String name, int total, int last,
-            String signTime) {
+    @Generated(hash = 931053110)
+    public UserReview(Long id, @NotNull String name, int total_count, int last_count, int total_money,
+            int last_money, String signTime) {
         this.id = id;
         this.name = name;
-        this.total = total;
-        this.last = last;
+        this.total_count = total_count;
+        this.last_count = last_count;
+        this.total_money = total_money;
+        this.last_money = last_money;
         this.signTime = signTime;
     }
     @Generated(hash = 1007454340)
@@ -61,17 +65,29 @@ public class UserReview {
     public void setName(String name) {
         this.name = name;
     }
-    public int getTotal() {
-        return this.total;
+    public int getTotal_count() {
+        return this.total_count;
     }
-    public void setTotal(int total) {
-        this.total = total;
+    public void setTotal_count(int total_count) {
+        this.total_count = total_count;
     }
-    public int getLast() {
-        return this.last;
+    public int getLast_count() {
+        return this.last_count;
     }
-    public void setLast(int last) {
-        this.last = last;
+    public void setLast_count(int last_count) {
+        this.last_count = last_count;
+    }
+    public int getTotal_money() {
+        return this.total_money;
+    }
+    public void setTotal_money(int total_money) {
+        this.total_money = total_money;
+    }
+    public int getLast_money() {
+        return this.last_money;
+    }
+    public void setLast_money(int last_money) {
+        this.last_money = last_money;
     }
     public String getSignTime() {
         return this.signTime;
@@ -145,5 +161,6 @@ public class UserReview {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getUserReviewDao() : null;
     }
+
 
 }

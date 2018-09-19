@@ -4,19 +4,17 @@ import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.widget.TextView;
-
 import com.example.senon.nancyclass.adapter.RecycleHolder;
 import com.example.senon.nancyclass.adapter.RecyclerAdapter;
 import com.example.senon.nancyclass.base.BaseActivity;
 import com.example.senon.nancyclass.base.BaseResponse;
 import com.example.senon.nancyclass.contract.UserContract;
-import com.example.senon.nancyclass.contract.UserContract;
 import com.example.senon.nancyclass.greendaoentity.UserDetails;
 import com.example.senon.nancyclass.greendaoentity.UserReview;
 import com.example.senon.nancyclass.greendaoutil.UserDetailsDt;
 import com.example.senon.nancyclass.greendaoutil.UserReviewDt;
-import com.example.senon.nancyclass.presenter.MainPresenter;
 import com.example.senon.nancyclass.presenter.UserPresenter;
+import com.example.senon.nancyclass.util.BaseEvent;
 import com.example.senon.nancyclass.util.ComUtil;
 import com.example.senon.nancyclass.util.ToastUtil;
 import com.github.jdsjlzx.interfaces.OnLoadMoreListener;
@@ -24,13 +22,13 @@ import com.github.jdsjlzx.interfaces.OnRefreshListener;
 import com.github.jdsjlzx.recyclerview.LRecyclerView;
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
 import com.github.jdsjlzx.recyclerview.ProgressStyle;
-
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.OnClick;
-
 import static com.example.senon.nancyclass.base.BaseApplication.getContext;
 
 /**
@@ -46,8 +44,11 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
     TextView total_count_tv;
     @BindView(R.id.last_count_tv)
     TextView last_count_tv;
+    @BindView(R.id.total_money_tv)
+    TextView total_money_tv;
+    @BindView(R.id.last_money_tv)
+    TextView last_money_tv;
 
-    private static final int REQUEST_CODE = 1000;
     private RecyclerAdapter<UserDetails> adapter;
     private LRecyclerViewAdapter mLRecyclerViewAdapter;
     private boolean isLoadMore = false;//是否加载更多
@@ -69,17 +70,24 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
 
     @Override
     public void init() {
+        EventBus.getDefault().register(this);
         name = getIntent().getStringExtra("name");
-        mData.addAll(userDetailsDt.getAllByName(name));
-        userReview = userReviewDt.findByName(name);
+        name_tv.setText(name+"的历史记录");
 
-        name_tv.setText(userReview.getName()+"的历史记录");
-        total_count_tv.setText(userReview.getTotal()+"");
-        last_count_tv.setText(userReview.getLast()+"");
-
+        initData();
         initLrv();
     }
 
+    private void initData(){
+        mData.clear();
+        mData.addAll(userDetailsDt.getAllByName(name));
+        userReview = userReviewDt.findByName(name);
+
+        total_count_tv.setText(userReview.getTotal_count()+"");
+        last_count_tv.setText(userReview.getLast_count()+"");
+        total_money_tv.setText(userReview.getTotal_money()+"");
+        last_money_tv.setText(userReview.getLast_money()+"");
+    }
     private void initLrv() {
         LinearLayoutManager manager = new LinearLayoutManager(getContext());
         lrv.setLayoutManager(manager);
@@ -94,6 +102,7 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
 
                 if(item.getFlag() == 1){//签到
                     helper.setText(R.id.text2,"表现");
+                    helper.setText(R.id.des_tv,"备注:"+item.getComments());
                     helper.setText(R.id.money_tv, ComUtil.getLevelStr(item.getLevel()));
                     helper.setText(R.id.type_tv,"签到");
                     helper.setTextColor(R.id.type_tv,R.color.txt_blue_color);
@@ -118,11 +127,10 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
                     helper.setOnLongClickListener(R.id.lay, new View.OnLongClickListener() {
                         @Override
                         public boolean onLongClick(View view) {
-                            startActivityForResult(new Intent(UserActivity.this,SignActivity.class)
+                            startActivity(new Intent(UserActivity.this,SignActivity.class)
                                             .putExtra("name",name)
                                             .putExtra("state",2)
-                                            .putExtra("time",item.getTime()),
-                                    REQUEST_CODE);
+                                            .putExtra("time",item.getTime()));
                             return false;
                         }
                     });
@@ -166,8 +174,9 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
                     dialogRecharge.setConfirmClickListener(new DialogRecharge.OnClickListener() {
                         @Override
                         public void setConfirmClickListener(String time, String money, String count, String des) {
-                            UserDetails details = userDetailsDt.findByTime(time);
+                            UserDetails details = userDetailsDt.findByTime(time);//每天只能充值一次
                             if(details == null){
+                                //生成当前充值记录，并插入数据库中
                                 details = new UserDetails();
                                 details.setName(name);
                                 details.setFlag(2);
@@ -177,14 +186,25 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
                                 details.setContent(des);
                                 userDetailsDt.insert(details);
 
-                                dialogRecharge.dismiss();
-                                mData.clear();
-                                mData.addAll(userDetailsDt.getAllByName(name));
+                                //更新学员概述次数与金额等
+                                UserReview review = userReviewDt.findByName(name);
+                                review.setTotal_count(review.getTotal_count()+Integer.parseInt(count));
+                                review.setLast_count(review.getLast_count()+Integer.parseInt(count));
+                                review.setTotal_money(review.getTotal_money()+Integer.parseInt(money));
+                                review.setLast_money(review.getLast_money()+Integer.parseInt(money));
+                                userReviewDt.update(review);
+
+                                BaseEvent event = new BaseEvent();
+                                event.setCode(3);
+                                EventBus.getDefault().post(event);
+
+                                initData();
                                 mLRecyclerViewAdapter.notifyDataSetChanged();
+                                dialogRecharge.dismiss();
 
                                 ToastUtil.showShortToast("充值成功！！！");
                             }else{
-//                                ToastUtil.showShortToast("当天已经签过到啦！！！");
+                                ToastUtil.showShortToast("每天只能充值一次哦");
                             }
                         }
                     });
@@ -192,10 +212,9 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
                 dialogRecharge.show();
                 break;
             case R.id.sign_btn:
-                startActivityForResult(new Intent(UserActivity.this,SignActivity.class)
+                startActivity(new Intent(UserActivity.this,SignActivity.class)
                                 .putExtra("name",name)
-                                .putExtra("state",1),
-                                REQUEST_CODE);
+                                .putExtra("state",1));
                 break;
         }
     }
@@ -220,11 +239,16 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQUEST_CODE && resultCode == RESULT_OK){
-            mData.clear();
-            mData.addAll(userDetailsDt.getAllByName(name));
+    protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)//在ui线程执行
+    public void onDataSynEvent(BaseEvent event) {
+        int code = event.getCode();
+        if (code == 1 || code == 2) {//1签到  2签到修改
+            initData();
             mLRecyclerViewAdapter.notifyDataSetChanged();
         }
     }

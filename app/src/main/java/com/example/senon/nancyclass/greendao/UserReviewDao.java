@@ -26,9 +26,11 @@ public class UserReviewDao extends AbstractDao<UserReview, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property Name = new Property(1, String.class, "name", false, "NAME");
-        public final static Property Total = new Property(2, int.class, "total", false, "TOTAL");
-        public final static Property Last = new Property(3, int.class, "last", false, "LAST");
-        public final static Property SignTime = new Property(4, String.class, "signTime", false, "SIGN_TIME");
+        public final static Property Total_count = new Property(2, int.class, "total_count", false, "TOTAL_COUNT");
+        public final static Property Last_count = new Property(3, int.class, "last_count", false, "LAST_COUNT");
+        public final static Property Total_money = new Property(4, int.class, "total_money", false, "TOTAL_MONEY");
+        public final static Property Last_money = new Property(5, int.class, "last_money", false, "LAST_MONEY");
+        public final static Property SignTime = new Property(6, String.class, "signTime", false, "SIGN_TIME");
     }
 
     private DaoSession daoSession;
@@ -49,9 +51,11 @@ public class UserReviewDao extends AbstractDao<UserReview, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"USER_REVIEW\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"NAME\" TEXT NOT NULL ," + // 1: name
-                "\"TOTAL\" INTEGER NOT NULL ," + // 2: total
-                "\"LAST\" INTEGER NOT NULL ," + // 3: last
-                "\"SIGN_TIME\" TEXT);"); // 4: signTime
+                "\"TOTAL_COUNT\" INTEGER NOT NULL ," + // 2: total_count
+                "\"LAST_COUNT\" INTEGER NOT NULL ," + // 3: last_count
+                "\"TOTAL_MONEY\" INTEGER NOT NULL ," + // 4: total_money
+                "\"LAST_MONEY\" INTEGER NOT NULL ," + // 5: last_money
+                "\"SIGN_TIME\" TEXT);"); // 6: signTime
     }
 
     /** Drops the underlying database table. */
@@ -69,12 +73,14 @@ public class UserReviewDao extends AbstractDao<UserReview, Long> {
             stmt.bindLong(1, id);
         }
         stmt.bindString(2, entity.getName());
-        stmt.bindLong(3, entity.getTotal());
-        stmt.bindLong(4, entity.getLast());
+        stmt.bindLong(3, entity.getTotal_count());
+        stmt.bindLong(4, entity.getLast_count());
+        stmt.bindLong(5, entity.getTotal_money());
+        stmt.bindLong(6, entity.getLast_money());
  
         String signTime = entity.getSignTime();
         if (signTime != null) {
-            stmt.bindString(5, signTime);
+            stmt.bindString(7, signTime);
         }
     }
 
@@ -87,12 +93,14 @@ public class UserReviewDao extends AbstractDao<UserReview, Long> {
             stmt.bindLong(1, id);
         }
         stmt.bindString(2, entity.getName());
-        stmt.bindLong(3, entity.getTotal());
-        stmt.bindLong(4, entity.getLast());
+        stmt.bindLong(3, entity.getTotal_count());
+        stmt.bindLong(4, entity.getLast_count());
+        stmt.bindLong(5, entity.getTotal_money());
+        stmt.bindLong(6, entity.getLast_money());
  
         String signTime = entity.getSignTime();
         if (signTime != null) {
-            stmt.bindString(5, signTime);
+            stmt.bindString(7, signTime);
         }
     }
 
@@ -112,9 +120,11 @@ public class UserReviewDao extends AbstractDao<UserReview, Long> {
         UserReview entity = new UserReview( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.getString(offset + 1), // name
-            cursor.getInt(offset + 2), // total
-            cursor.getInt(offset + 3), // last
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4) // signTime
+            cursor.getInt(offset + 2), // total_count
+            cursor.getInt(offset + 3), // last_count
+            cursor.getInt(offset + 4), // total_money
+            cursor.getInt(offset + 5), // last_money
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6) // signTime
         );
         return entity;
     }
@@ -123,9 +133,11 @@ public class UserReviewDao extends AbstractDao<UserReview, Long> {
     public void readEntity(Cursor cursor, UserReview entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setName(cursor.getString(offset + 1));
-        entity.setTotal(cursor.getInt(offset + 2));
-        entity.setLast(cursor.getInt(offset + 3));
-        entity.setSignTime(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setTotal_count(cursor.getInt(offset + 2));
+        entity.setLast_count(cursor.getInt(offset + 3));
+        entity.setTotal_money(cursor.getInt(offset + 4));
+        entity.setLast_money(cursor.getInt(offset + 5));
+        entity.setSignTime(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
      }
     
     @Override

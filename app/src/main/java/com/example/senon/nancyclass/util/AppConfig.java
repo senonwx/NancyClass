@@ -8,5 +8,7 @@ public class AppConfig {
 
     public static final String TABLE_NAME = "nancy_next_term.db";
 
+    public static final int PRICE = 300;//单节课的价格
+
 
 }

@@ -2,6 +2,7 @@ package com.example.senon.nancyclass;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaScannerConnection;
 import android.os.Environment;
 import android.support.v7.widget.GridLayoutManager;
 import android.view.View;
@@ -21,12 +22,8 @@ import com.example.senon.nancyclass.util.SelectorTimeUtil;
 import com.example.senon.nancyclass.util.ToastUtil;
 import com.github.jdsjlzx.recyclerview.LRecyclerView;
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
-import com.socks.library.KLog;
-
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -257,9 +254,9 @@ public class SignActivity extends BaseActivity<BaseView, BasePresenter<BaseView>
         bm = Bitmap.createBitmap(bitmap, 0, 40, w, h-40, null, false);
         try {
             // 获取内置SD卡路径
-            String sdCardPath = Environment.getExternalStorageDirectory().getPath();
+            String sdCardPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath();
             // 图片文件路径
-            String filePath = sdCardPath + File.separator + System.currentTimeMillis()+name+".jpg";
+            String filePath = sdCardPath + "/" +System.currentTimeMillis()+name+".jpg";
             File file = new File(filePath);
             judeDirExists(file);
             FileOutputStream os = new FileOutputStream(file);
@@ -267,6 +264,10 @@ public class SignActivity extends BaseActivity<BaseView, BasePresenter<BaseView>
             os.flush();
             os.close();
             ToastUtil.showShortToast("截屏成功，在相册中可以查看！");
+            //刷新系统相册
+            MediaScannerConnection.scanFile(this, new String[]{
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath() + "/" + filePath},
+                    null, null);
         } catch (Exception e) {
             ToastUtil.showShortToast("截屏失败，请重试！");
         }

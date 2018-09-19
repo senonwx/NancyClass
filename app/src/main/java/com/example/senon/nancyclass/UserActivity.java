@@ -42,10 +42,10 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
     LRecyclerView lrv;
     @BindView(R.id.name_tv)
     TextView name_tv;
-    @BindView(R.id.total_tv)
-    TextView total_tv;
-    @BindView(R.id.last_tv)
-    TextView last_tv;
+    @BindView(R.id.total_count_tv)
+    TextView total_count_tv;
+    @BindView(R.id.last_count_tv)
+    TextView last_count_tv;
 
     private static final int REQUEST_CODE = 1000;
     private RecyclerAdapter<UserDetails> adapter;
@@ -73,15 +73,14 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
         mData.addAll(userDetailsDt.getAllByName(name));
         userReview = userReviewDt.findByName(name);
 
-        name_tv.setText(userReview.getName());
-        total_tv.setText(userReview.getTotal()+"");
-        last_tv.setText(userReview.getLast()+"");
+        name_tv.setText(userReview.getName()+"的历史记录");
+        total_count_tv.setText(userReview.getTotal()+"");
+        last_count_tv.setText(userReview.getLast()+"");
 
         initLrv();
     }
 
     private void initLrv() {
-
         LinearLayoutManager manager = new LinearLayoutManager(getContext());
         lrv.setLayoutManager(manager);
         lrv.setRefreshProgressStyle(ProgressStyle.LineSpinFadeLoader); //设置下拉刷新Progress的样式
@@ -90,37 +89,45 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
         adapter = new RecyclerAdapter<UserDetails>(this, mData, R.layout.item_user_lrv) {
             @Override
             public void convert(final RecycleHolder helper, final UserDetails item, final int position) {
+                helper.setVisible(R.id.title_tv,position == 0);
                 helper.setText(R.id.time_tv,item.getTime());
-                if(item.getFlag() == 1){
+
+                if(item.getFlag() == 1){//签到
+                    helper.setText(R.id.text2,"表现");
+                    helper.setText(R.id.money_tv, ComUtil.getLevelStr(item.getLevel()));
                     helper.setText(R.id.type_tv,"签到");
-                    helper.setText(R.id.des_tv, ComUtil.getLevelStr(item.getLevel()));
-                }else if(item.getFlag() == 2){
-                    helper.setText(R.id.type_tv,"充值"+item.getMoney());
-                    helper.setText(R.id.des_tv,"充值"+item.getCount()+"次");
+                    helper.setTextColor(R.id.type_tv,R.color.txt_blue_color);
+                }else if(item.getFlag() == 2){//充值
+                    helper.setText(R.id.text2,"充值");
+                    helper.setText(R.id.des_tv,"备注:"+item.getContent());
+                    helper.setText(R.id.money_tv,item.getMoney());
+                    helper.setText(R.id.type_tv,"充值");
                     helper.setTextColor(R.id.type_tv,R.color.txt_green_color);
-                    helper.setTextColor(R.id.des_tv,R.color.txt_green_color);
                 }
 
-                helper.setOnClickListener(R.id.lay, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startActivity(new Intent(UserActivity.this,SignActivity.class)
-                                .putExtra("name",name)
-                                .putExtra("state",0)
-                                .putExtra("time",item.getTime()));
-                    }
-                });
-                helper.setOnLongClickListener(R.id.lay, new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        startActivityForResult(new Intent(UserActivity.this,SignActivity.class)
-                                .putExtra("name",name)
-                                .putExtra("state",2)
-                                .putExtra("time",item.getTime()),
-                                REQUEST_CODE);
-                        return false;
-                    }
-                });
+                if(item.getFlag() == 1){
+                    helper.setOnClickListener(R.id.lay, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(new Intent(UserActivity.this,SignActivity.class)
+                                    .putExtra("name",name)
+                                    .putExtra("state",0)
+                                    .putExtra("time",item.getTime()));
+                        }
+                    });
+                    helper.setOnLongClickListener(R.id.lay, new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View view) {
+                            startActivityForResult(new Intent(UserActivity.this,SignActivity.class)
+                                            .putExtra("name",name)
+                                            .putExtra("state",2)
+                                            .putExtra("time",item.getTime()),
+                                    REQUEST_CODE);
+                            return false;
+                        }
+                    });
+                }
+
             }
         };
         mLRecyclerViewAdapter = new LRecyclerViewAdapter(adapter);

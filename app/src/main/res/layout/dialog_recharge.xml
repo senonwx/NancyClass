@@ -150,7 +150,7 @@
         <RelativeLayout
             android:id="@+id/dialog_des_lay"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal">
 
             <TextView
@@ -162,19 +162,26 @@
                 android:text="备注(非必填) "
                 android:textColor="@color/txt_black_color"
                 android:textSize="15sp"/>
-
             <EditText
-                android:singleLine="true"
-                android:maxLength="20"
+                android:lineSpacingMultiplier="1.1"
                 android:id="@+id/des_tv"
-                android:layout_width="100dp"
-                android:layout_height="40dp"
-                android:layout_marginLeft="10dp"
-                android:layout_toRightOf="@+id/recharge_des_textView3"
-                android:gravity="center_vertical"
-                android:text=""
                 android:textColor="@color/txt_green_color"
-                android:textSize="15sp"/>
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:textSize="15sp"
+                android:gravity="start"
+                android:text=""
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="20dp"
+                android:background="@drawable/edit_bg_gray"
+                android:layout_toRightOf="@+id/recharge_des_textView3"
+                android:minHeight="70dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
         </RelativeLayout>
 
         <View

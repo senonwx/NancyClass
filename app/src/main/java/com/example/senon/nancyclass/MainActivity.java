@@ -14,6 +14,7 @@ import com.example.senon.nancyclass.base.BaseActivity;
 import com.example.senon.nancyclass.base.BaseResponse;
 import com.example.senon.nancyclass.contract.MainContract;
 import com.example.senon.nancyclass.greendaoentity.UserReview;
+import com.example.senon.nancyclass.greendaoutil.UserDetailsDt;
 import com.example.senon.nancyclass.greendaoutil.UserReviewDt;
 import com.example.senon.nancyclass.presenter.MainPresenter;
 import com.example.senon.nancyclass.util.BaseEvent;
@@ -33,6 +34,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 import static com.example.senon.nancyclass.base.BaseApplication.getContext;
 
@@ -53,6 +55,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainContract.P
     private List<UserReview> mData = new ArrayList<>();//原始数据
     private List<UserReview> tempData = new ArrayList<>();//间接数据
     private UserReviewDt userBeanDt = new UserReviewDt();
+    private UserDetailsDt userDetailsDt = new UserDetailsDt();
     private DialogAdd$Del dialogAdd$Del;
 
 
@@ -85,7 +88,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainContract.P
             @Override
             public void convert(final RecycleHolder helper, final UserReview item, final int position) {
                 helper.setText(R.id.name_tv,item.getName());
-                helper.setText(R.id.count_tv,item.getTotal_count());
+                helper.setText(R.id.count_tv,item.getLast_count());
                 helper.setText(R.id.time_tv,item.getSignTime());
 
                 helper.setOnClickListener(R.id.lay, new View.OnClickListener() {
@@ -159,13 +162,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainContract.P
                             return;
                         }
 
-                        ////todo 删除数据库历史纪录  并且还原学员概述的值
-
-                        ToastUtil.showShortToast("确认删除?");
-//                        userBeanDt.delete(name);
-//                        initData();
-//                        mLRecyclerViewAdapter.notifyDataSetChanged();
-//                        dialogAdd$Del.dismiss();
+                        dialogAdd$Del.dismiss();
+                        setSweetDialog(name,"确认删除?","删除之后将不能恢复!");
                     }
                 });
                 dialogAdd$Del.show();
@@ -173,6 +171,33 @@ public class MainActivity extends BaseActivity<MainContract.View, MainContract.P
         }
     }
 
+    private void setSweetDialog(final String name, String title, String tip){
+        SweetAlertDialog sad = new SweetAlertDialog(MainActivity.this, SweetAlertDialog.WARNING_TYPE)
+                .setTitleText(title)
+                .setContentText(tip)
+                .setCancelText("取消")
+                .setConfirmText("确认")
+                .showCancelButton(true)
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                    }
+                })
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.dismiss();
+
+                        userBeanDt.delete(name);
+                        userDetailsDt.delete(name);
+
+                        initData();
+                        mLRecyclerViewAdapter.notifyDataSetChanged();
+                    }
+                });
+        sad.show();
+    }
 
     @Override
     public MainContract.Presenter createPresenter() {
@@ -202,7 +227,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainContract.P
     @Subscribe(threadMode = ThreadMode.MAIN)//在ui线程执行
     public void onDataSynEvent(BaseEvent event) {
         int code = event.getCode();
-        if (code == 1 || code == 2 || code == 4) {//1签到  2签到修改 4删除了历史记录
+        if (code == 1 || code == 2 ||code == 3 || code == 4) {//1签到  2签到修改 3充值  4删除了历史记录
             initData();
             mLRecyclerViewAdapter.notifyDataSetChanged();
         }

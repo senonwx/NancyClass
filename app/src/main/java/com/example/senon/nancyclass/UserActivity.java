@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
 import static com.example.senon.nancyclass.base.BaseApplication.getContext;
 
 /**
@@ -146,11 +148,8 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
                             @Override
                             public void onItemClick(int position) {
                                 if(position == 0){
-                                    ////todo 删除数据库历史纪录  并且还原学员概述的值
-
-                                    ToastUtil.showShortToast("确认删除?");
+                                    setSweetDialog(item.getFlag(),name,item.getTime(),"确认删除?","删除记录之后将不能恢复!");
                                 }else if(position == 1){
-
                                     startActivity(new Intent(UserActivity.this,SignActivity.class)
                                             .putExtra("name",name)
                                             .putExtra("state",2)
@@ -187,6 +186,57 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
 
     }
 
+    private void setSweetDialog(final int type,final String name,final String time, String title, String tip){
+        SweetAlertDialog sad = new SweetAlertDialog(UserActivity.this, SweetAlertDialog.WARNING_TYPE)
+                .setTitleText(title)
+                .setContentText(tip)
+                .setCancelText("取消")
+                .setConfirmText("确认")
+                .showCancelButton(true)
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                    }
+                })
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.dismiss();
+                        UserDetails details = null;
+                        if(type == 1){//签到
+                            details = userDetailsDt.findByName$Time$Flag(name,time,1);
+                            int money = details.getMoney();
+                            int count = details.getCount();
+                            userReview.setLast_money(userReview.getLast_money() + money);
+                            userReview.setLast_count(userReview.getLast_count() + count);
+                        }else if(type == 2){//充值
+                            details = userDetailsDt.findByName$Time$Flag(name,time,2);
+                            int money = details.getMoney();
+                            int count = details.getCount();
+                            userReview.setTotal_money(userReview.getTotal_money() - money);
+                            userReview.setLast_money(userReview.getLast_money() - money);
+                            userReview.setTotal_count(userReview.getTotal_count() - count);
+                            userReview.setLast_count(userReview.getLast_count() - count);
+                        }
+
+                        //学员概述
+                        userReviewDt.update(userReview);
+                        //历史记录
+                        userDetailsDt.delete(details);
+
+                        //通知MainActivity刷新页面
+                        BaseEvent event = new BaseEvent();
+                        event.setCode(4);
+                        EventBus.getDefault().post(event);
+
+                        initData();
+                        mLRecyclerViewAdapter.notifyDataSetChanged();
+                    }
+                });
+        sad.show();
+    }
+
     @OnClick({R.id.back_igv,R.id.recharge_btn,R.id.sign_btn})
     public void onViewClicked(View view) {
         switch (view.getId()) {
@@ -199,7 +249,7 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
                     dialogRecharge.setConfirmClickListener(new DialogRecharge.OnClickListener() {
                         @Override
                         public void setConfirmClickListener(String time, String money, String count, String des) {
-                            UserDetails details = userDetailsDt.findByTime(time);//每天只能充值一次
+                            UserDetails details = userDetailsDt.findByName$Time$Flag(name,time,2);//每天只能充值一次
                             if(details == null){
                                 //生成当前充值记录，并插入数据库中
                                 details = new UserDetails();
@@ -227,9 +277,9 @@ public class UserActivity extends BaseActivity<UserContract.View, UserContract.P
                                 mLRecyclerViewAdapter.notifyDataSetChanged();
                                 dialogRecharge.dismiss();
 
-                                ToastUtil.showShortToast("充值成功！！！");
+                                ToastUtil.showShortToast("充值成功！");
                             }else{
-                                ToastUtil.showShortToast("每天只能充值一次哦");
+                                ToastUtil.showShortToast("每天只能充值一次哦！");
                             }
                         }
                     });

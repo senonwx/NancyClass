@@ -18,4 +18,11 @@ public class BaseApplication extends Application{
     public static Context getContext(){
         return mContext;
     }
+
+//    @Override
+//    protected void attachBaseContext(Context base) {
+//        super.attachBaseContext(base);
+//        //  初始化多dex配置，放置三方包dex文件生成超过65536
+//        MultiDex.install(base);
+//    }
 }

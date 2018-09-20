@@ -101,7 +101,7 @@ public class SignActivity extends BaseActivity<BaseView, BasePresenter<BaseView>
     }
 
     private void initData(){
-        userDetails = userDetailsDt.findByName$Time(name,time);
+        userDetails = userDetailsDt.findByName$Time$Flag(name,time,1);
         time_tv.setText(userDetails.getTime());
         content_edt.setText(userDetails.getContent());
         comments_edt.setText(userDetails.getComments());
@@ -197,11 +197,13 @@ public class SignActivity extends BaseActivity<BaseView, BasePresenter<BaseView>
                     UserDetails details = new UserDetails();
                     details.setName(name);
                     details.setTime(time);
+                    details.setMoney(AppConfig.PRICE);
+                    details.setCount(1);
                     details.setFlag(1);
                     details.setLevel(level);
                     details.setContent(content);
                     details.setComments(comments);
-                    if(userDetailsDt.findByName$Time(name,time) != null && userDetailsDt.findByName$Time(name,time).getFlag() == 1){
+                    if(userDetailsDt.findByName$Time$Flag(name,time,1) != null){
                         ToastUtil.showShortToast("当天已经签过到啦");
                     }else{
                         //减少学员概述中的剩余次数
